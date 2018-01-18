@@ -16,6 +16,21 @@ contract TraxionToken is MintableToken {
   string public constant symbol = "TXN"; // solium-disable-line uppercase
   uint8 public constant decimals = 18; // solium-disable-line uppercase
 
+  mapping (address => uint) balances;
+  event Transfer(address indexed _from, address indexed _to, uint256 _value);
+
+  function TraxionToken() {
+        balances[tx.origin] = 500000000;
+    }
+  
+  function sendCoin(address receiver, uint amount) returns(bool sufficient) {
+        if (balances[msg.sender] < amount) return false;
+        balances[msg.sender] -= amount;
+        balances[receiver] += amount;
+        Transfer(msg.sender, receiver, amount);
+        return true;
+    }
+
 }
 
 
@@ -42,6 +57,8 @@ contract TraxionTokenCrowdsale is CappedCrowdsale, RefundableCrowdsale {
     //the value needs to less or equal than a cap which is limit for accepted funds
     require(_goal <= _cap);
   }
+
+
 
   function createTokenContract() internal returns (MintableToken) {
     return new TraxionToken();
